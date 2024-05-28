@@ -18,7 +18,7 @@ Crab-Go is a Rust project that aims to implement concurrency patterns and utilit
 ### Channels
 Channels allow passing messages between threads. The `Chan` type is a thread-safe communication channel.
 
-\`\`\`rust
+```rust
 fn main() {
     let (tx, rx) = channel();
     thread::spawn(move || {
@@ -26,12 +26,12 @@ fn main() {
     });
     println!("Received: {}", rx.recv().unwrap());
 }
-\`\`\`
+```
 
 ### WaitGroups
 WaitGroups are used to wait for a collection of goroutines to finish executing.
 
-\`\`\`rust
+```rust
 struct WaitGroup {
     counter: Arc<Mutex<i32>>,
 }
@@ -62,12 +62,12 @@ impl WaitGroup {
         }
     }
 }
-\`\`\`
+```
 
 ### Mutexes
 Custom mutex implementation that mimics Go's mutex behavior, including a spin-wait lock.
 
-\`\`\`rust
+```rust
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex as StdMutex;
 
@@ -110,22 +110,22 @@ impl<'a> Drop for GoMutexGuard<'a> {
         self.mutex.unlock();
     }
 }
-\`\`\`
+```
 
 ### Timers
 Currently, the timer module is commented out but is intended to provide timing utilities similar to those in Go.
 
-\`\`\`rust
+```rust
 // Timer module code here
-\`\`\`
+```
 
 ## Installation
 Add Crab-Go to your Rust project by including it in your `Cargo.toml`:
 
-\`\`\`toml
+```toml
 [dependencies]
 crab-go = { path = "path_to_crab-go" }
-\`\`\`
+```
 
 ## Contributing
 Contributions are welcome! Please feel free to submit pull requests or open issues to discuss potential improvements or additions to the project.
