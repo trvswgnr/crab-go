@@ -1,5 +1,14 @@
-use crate::lib::Runtime;
 use std::future::Future;
+
+pub trait Runtime {
+    type Handle<U>;
+
+    fn spawn<F, T>(f: F) -> Self::Handle<T>
+    where
+        F: Future<Output = T> + Send + 'static,
+        T: Send + 'static;
+}
+
 use tokio::task::JoinHandle as TokioJoinHandle;
 
 pub struct TokioRuntime;
@@ -34,7 +43,6 @@ impl Runtime for AsyncStdRuntime {
 
 use std::pin::Pin;
 use std::sync::mpsc::{self, Receiver};
-use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Waker};
 use std::thread;
 
@@ -62,19 +70,18 @@ pub fn block_on<F: Future>(mut future: F) -> F::Output {
         match unsafe { Pin::new_unchecked(&mut future) }.poll(&mut context) {
             Poll::Ready(val) => return val,
             Poll::Pending => {
-                // Spin-wait, as we're not using an async runtime
+                // spin-wait, woof
                 std::thread::yield_now();
             }
         }
     }
 }
 
-// Helper function to pin a future manually
+// pin a future manually
 fn pin_mut<T>(value: &mut T) -> Pin<&mut T> {
     unsafe { Pin::new_unchecked(value) }
 }
 
-// Noop waker implementation
 fn noop_waker() -> Waker {
     unsafe { Waker::from_raw(noop_raw_waker()) }
 }

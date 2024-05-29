@@ -8,7 +8,7 @@ pub struct GoMutex {
 
 impl GoMutex {
     pub fn new() -> Self {
-        GoMutex {
+        Self {
             lock: StdMutex::new(()),
             is_locked: AtomicBool::new(false),
         }
@@ -16,7 +16,7 @@ impl GoMutex {
 
     pub fn lock(&self) -> GoMutexGuard {
         while let Err(_) = self.lock.try_lock() {
-            // Spin-wait here to mimic Go's blocking behavior
+            // spin-wait, woof
             std::thread::yield_now();
         }
         self.is_locked.store(true, Ordering::SeqCst);
