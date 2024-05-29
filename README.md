@@ -1,10 +1,10 @@
-# Crab-Go Project
+# `crab-go` Project
 
 > [!CAUTION]
 > This project is still in early development and is not even close to ready for production use.
 
 ## Overview
-Crab-Go is a Rust project that aims to implement concurrency patterns and utilities inspired by Go's channels and goroutines. It provides a set of tools to facilitate concurrent programming in Rust, mimicking Go's behavior for educational and practical purposes.
+`crab-go` is a Rust project that aims to implement concurrency patterns and utilities inspired by Go's channels and goroutines. It provides a set of tools to facilitate concurrent programming in Rust, mimicking Go's behavior for educational and practical purposes.
 
 ## Features
 - **Channels**: Safe communication between threads.
@@ -113,22 +113,18 @@ impl<'a> Drop for GoMutexGuard<'a> {
 ```
 
 ### Timers
-Currently, the timer module is commented out but is intended to provide timing utilities similar to those in Go.
-
-```rust
-// Timer module code here
-```
+Coming soon!
 
 ## Installation
-Add Crab-Go to your Rust project by including it in your `Cargo.toml`:
+Add `crab-go` to your Rust project by including it in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-crab-go = { path = "path_to_crab-go" }
+crab-go = { git = "https://github.com/trvswgnr/crab-go" }
 ```
 
 ## Contributing
 Contributions are welcome! Please feel free to submit pull requests or open issues to discuss potential improvements or additions to the project.
 
 ## License
-Crab-Go is distributed under the MIT license. See the LICENSE file for more details.
+`crab-go` is distributed under the MIT license. See the LICENSE file for more details.
