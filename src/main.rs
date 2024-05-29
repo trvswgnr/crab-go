@@ -4,6 +4,9 @@ mod config;
 mod lib;
 mod runtimes;
 
+use lib::Runtime; // needs to be imported, could maybe do it in set_runtime macro, idk
+set_runtime!(runtimes::TokioRuntime); // important! needs to be set
+
 fn sum(slice: &[i32]) -> i32 {
     slice.iter().sum()
 }
@@ -35,8 +38,8 @@ fn example_2() {
     println!("{} {} {}", x, y, x + y);
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     example_1();
     example_2();
-    std::thread::spawn(move || {});
 }

@@ -106,7 +106,7 @@ impl Runtime for StdRuntime {
         let (tx, rx) = mpsc::channel();
         thread::spawn(move || {
             let result = block_on(future);
-            tx.send(result).unwrap();
+            tx.send(result)
         });
         StdJoinHandle { receiver: rx }
     }
