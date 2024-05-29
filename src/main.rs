@@ -1,8 +1,7 @@
-use std::sync::mpsc::{channel, SendError, Sender};
+use std::sync::mpsc::channel;
 use std::thread;
 use std::time::Duration;
 
-// More generic and flexible go! macro
 macro_rules! go {
     ($func:expr) => {{
         thread::spawn(move || {
@@ -13,7 +12,7 @@ macro_rules! go {
         let sender_clone = $channel.0.clone();
         thread::spawn(move || {
             let result = $func;
-            sender_clone.send(result).unwrap();
+            sender_clone.send(result)
         });
     }};
 }
