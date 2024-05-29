@@ -1,13 +1,13 @@
 #[macro_export]
 macro_rules! go {
     ($func:expr) => {{
-        <$crate::Rt>::spawn(async move {
+        <CrabGoInternalRuntime>::spawn_task(async move {
             $func;
         });
     }};
     ($func:expr, $channel:expr) => {{
         let sender_clone = $channel.0.clone();
-        <$crate::Rt>::spawn(async move {
+        <CrabGoInternalRuntime>::spawn_task(async move {
             let result = $func;
             sender_clone.send(result)
         });
@@ -21,9 +21,38 @@ macro_rules! recv {
     };
 }
 
+#[cfg(feature = "rt-tokio")]
+#[macro_export]
+macro_rules! set_runtime {
+    () => {
+        pub use $crate::RuntimeTrait as CrabGoInternalRuntimeTrait;
+        pub type CrabGoInternalRuntime = $crate::TokioRuntime;
+    };
+}
+
+#[cfg(feature = "rt-async-std")]
+#[macro_export]
+macro_rules! set_runtime {
+    () => {
+        pub use $crate::RuntimeTrait as CrabGoInternalRuntimeTrait;
+        pub type CrabGoInternalRuntime = $crate::AsyncStdRuntime;
+    };
+}
+
+#[cfg(feature = "rt-native")]
+#[macro_export]
+macro_rules! set_runtime {
+    () => {
+        use $crate::RuntimeTrait as CrabGoInternalRuntimeTrait;
+        type CrabGoInternalRuntime = $crate::NativeRuntime;
+    };
+}
+
+#[cfg(feature = "rt-custom")]
 #[macro_export]
 macro_rules! set_runtime {
     ($t:ty) => {
-        type Rt = $t;
+        pub use $crate::RuntimeTrait as CrabGoInternalRuntimeTrait;
+        pub type CrabGoInternalRuntime = $t;
     };
 }
