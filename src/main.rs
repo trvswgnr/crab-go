@@ -1,27 +1,8 @@
-use std::sync::mpsc::channel;
-use std::thread;
-use std::time::Duration;
+use std::{sync::mpsc::channel, thread, time::Duration};
 
-macro_rules! go {
-    ($func:expr) => {{
-        thread::spawn(move || {
-            $func;
-        });
-    }};
-    ($func:expr, $channel:expr) => {{
-        let sender_clone = $channel.0.clone();
-        thread::spawn(move || {
-            let result = $func;
-            sender_clone.send(result)
-        });
-    }};
-}
-
-macro_rules! recv {
-    ($($channel:expr),+ $(,)?) => {
-        ($( $channel.1.recv().unwrap(), )+)
-    };
-}
+mod config;
+mod lib;
+mod runtimes;
 
 fn sum(slice: &[i32]) -> i32 {
     slice.iter().sum()
@@ -57,4 +38,5 @@ fn example_2() {
 fn main() {
     example_1();
     example_2();
+    std::thread::spawn(move || {});
 }
