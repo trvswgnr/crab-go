@@ -15,16 +15,23 @@ Crab-Go is a Rust project that aims to implement concurrency patterns and utilit
 
 ## Usage
 
-### Channels
-Channels allow passing messages between threads. The `Chan` type is a thread-safe communication channel.
+Currently, the main feature is the `go!` macro. It allows easy execution across threads.
 
 ```rust
-fn main() {
-    let (tx, rx) = channel();
-    thread::spawn(move || {
-        tx.send(10).unwrap();
-    });
-    println!("Received: {}", rx.recv().unwrap());
+use crab_go::{go, recv, setup_runtime, TokioRuntime};
+setup_runtime!(TokioRuntime);
+
+fn say(s: &str) {
+    for _ in 0..5 {
+      println!("{s}");
+      std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    go!(say("world"));
+    say("hello");
 }
 ```
 
