@@ -119,13 +119,6 @@ impl<'a> Drop for GoMutexGuard<'a> {
 }
 ```
 
-### Timers
-Currently, the timer module is commented out but is intended to provide timing utilities similar to those in Go.
-
-```rust
-// Timer module code here
-```
-
 ## Installation
 Add Crab-Go to your Rust project by including it in your `Cargo.toml`:
 

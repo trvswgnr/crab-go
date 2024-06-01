@@ -1,4 +1,12 @@
 pub struct TokioRuntime;
+use std::sync::OnceLock;
+
+fn get_or_create_runtime(
+    runtime: Option<tokio::runtime::Runtime>,
+) -> &'static tokio::runtime::Runtime {
+    static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
+    RUNTIME.get_or_init(|| runtime.unwrap())
+}
 
 impl crate::RuntimeTrait for TokioRuntime {
     type Handle<T> = tokio::task::JoinHandle<T>;
