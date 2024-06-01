@@ -1,25 +1,34 @@
-# Crab-Go Project
+# Crab-Go
 
 > [!CAUTION]
 > This project is still in early development and is not even close to ready for production use.
 
 ## Overview
-Crab-Go is a Rust project that aims to implement concurrency patterns and utilities inspired by Go's channels and goroutines. It provides a set of tools to facilitate concurrent programming in Rust, mimicking Go's behavior for educational and practical purposes.
-
-## Features
-- **Channels**: Safe communication between threads.
-- **Mutexes**: Custom mutex implementation mimicking Go's mutex behavior.
-- **Timers**: Timer utilities for managing timed operations.
-- **WaitGroups**: Synchronization aid that allows one goroutine to wait for multiple goroutines to finish.
-- **Utilities**: Helper functions and types for pointer and type conversions.
+Crab-Go is a Rust project that aims to simplify common concurrency patterns and utilities inspired by Go's channels and goroutines. It provides a set of tools to facilitate concurrent programming in Rust, mimicking Go's behavior for educational and practical purposes.
 
 ## Usage
 
-Currently, the main feature is the `go!` macro. It allows easy execution across threads.
+Currently, the main feature is the `go!` macro. It allows easy execution across
+threads.
+
+First, add the dependency to your `Cargo.toml` and enable the flag for the runtime you want to use:
+
+```toml
+[dependencies]
+crab-go = { git = "https://github.com/trvswgnr/crab-go", features = ["rt-tokio"] }
+```
+
+The available features are:
+- `rt-tokio`: Uses the Tokio runtime.
+- `rt-async-std`: Uses the async-std runtime.
+- `rt-native`: Uses native threads.
+- `rt-custom`: Use a custom runtime that you implement `RuntimeTrait` for.
+
+Then, import the necessary modules and functions:
 
 ```rust
-use crab_go::{go, recv, setup_runtime, TokioRuntime};
-setup_runtime!(TokioRuntime);
+use crag_go::prelude::*;
+use crab_go::{go, recv, channel};
 
 fn say(s: &str) {
     for _ in 0..5 {
@@ -28,103 +37,37 @@ fn say(s: &str) {
     }
 }
 
-#[tokio::main]
-async fn main() {
+fn example_1() {
     go!(say("world"));
     say("hello");
 }
-```
 
-### WaitGroups
-WaitGroups are used to wait for a collection of goroutines to finish executing.
-
-```rust
-struct WaitGroup {
-    counter: Arc<Mutex<i32>>,
+fn example_2() {
+    let c = channel();
+    let first_half = vec![7, 2, 8];
+    let second_half = vec![-9, 4, 0];
+    go!(sum(&first_half), c);
+    go!(sum(&second_half), c);
+    let (x, y) = recv!(c);
+    println!("{} {} {}", x, y, x + y);
 }
 
-impl WaitGroup {
-    fn new() -> Self {
-        WaitGroup {
-            counter: Arc::new(Mutex::new(0)),
-        }
-    }
-
-    fn add(&self, delta: i32) {
-        let mut counter = self.counter.lock().unwrap();
-        *counter += delta;
-    }
-
-    fn done(&self) {
-        let mut counter = self.counter.lock().unwrap();
-        *counter -= 1;
-    }
-
-    fn wait(&self) {
-        loop {
-            let counter = self.counter.lock().unwrap();
-            if *counter <= 0 {
-                break;
-            }
-        }
-    }
-}
-```
-
-### Mutexes
-Custom mutex implementation that mimics Go's mutex behavior, including a spin-wait lock.
-
-```rust
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Mutex as StdMutex;
-
-pub struct GoMutex {
-    lock: StdMutex<()>,
-    is_locked: AtomicBool,
+#[tokio::main]
+async fn main() {
+    example_1();
+    example_2();
 }
 
-impl GoMutex {
-    pub fn new() -> Self {
-        GoMutex {
-            lock: StdMutex::new(()),
-            is_locked: AtomicBool::new(false),
-        }
-    }
-
-    pub fn lock(&self) -> GoMutexGuard {
-        while let Err(_) = self.lock.try_lock() {
-            // Spin-wait here to mimic Go's blocking behavior
-            std::thread::yield_now();
-        }
-        self.is_locked.store(true, Ordering::SeqCst);
-        GoMutexGuard { mutex: &self }
-    }
-
-    fn unlock(&self) {
-        if self.is_locked.load(Ordering::SeqCst) {
-            self.is_locked.store(false, Ordering::SeqCst);
-            drop(self.lock.lock().unwrap()); // unlock the mutex
-        }
-    }
+pub fn sum(slice: &[i32]) -> i32 {
+    slice.iter().sum()
 }
 
-pub struct GoMutexGuard<'a> {
-    mutex: &'a GoMutex,
-}
-
-impl<'a> Drop for GoMutexGuard<'a> {
-    fn drop(&mut self) {
-        self.mutex.unlock();
+pub fn say(s: &str, delay: u64) {
+    for _ in 0..5 {
+        std::thread::sleep(std::time::Duration::from_millis(delay));
+        println!("{s}");
     }
 }
-```
-
-## Installation
-Add Crab-Go to your Rust project by including it in your `Cargo.toml`:
-
-```toml
-[dependencies]
-crab-go = { path = "path_to_crab-go" }
 ```
 
 ## Contributing
