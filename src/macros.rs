@@ -4,11 +4,7 @@ macro_rules! go {
         <$crate::Runtime>::spawn_task(async move { $e })
     };
     ($b:block) => {
-        <$crate::Runtime>::spawn_task(async move {
-            {
-                $b
-            }
-        })
+        <$crate::Runtime>::spawn_task(async move { $b })
     };
     ($func:expr, $channel:expr) => {{
         let sender_clone = $channel.0.clone();
